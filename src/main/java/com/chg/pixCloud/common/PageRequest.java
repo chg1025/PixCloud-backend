@@ -1,4 +1,4 @@
-package com.chg.springboottempalte.common;
+package com.chg.pixCloud.common;
 
 import lombok.Data;
 

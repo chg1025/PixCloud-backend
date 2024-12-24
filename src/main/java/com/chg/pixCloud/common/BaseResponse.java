@@ -1,6 +1,6 @@
-package com.chg.springboottempalte.common;
+package com.chg.pixCloud.common;
 
-import com.chg.springboottempalte.enums.ErrorCode;
+import com.chg.pixCloud.enums.ErrorCode;
 import lombok.Data;
 
 import java.io.Serializable;

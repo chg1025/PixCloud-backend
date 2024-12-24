@@ -1,8 +1,8 @@
-package com.chg.springboottempalte.exception;
+package com.chg.pixCloud.exception;
 
-import com.chg.springboottempalte.common.BaseResponse;
-import com.chg.springboottempalte.enums.ErrorCode;
-import com.chg.springboottempalte.utils.ResultUtils;
+import com.chg.pixCloud.common.BaseResponse;
+import com.chg.pixCloud.enums.ErrorCode;
+import com.chg.pixCloud.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

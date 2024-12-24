@@ -1,4 +1,4 @@
-package com.chg.springboottempalte.config;
+package com.chg.pixCloud.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

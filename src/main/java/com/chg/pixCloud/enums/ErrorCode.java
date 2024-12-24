@@ -1,4 +1,4 @@
-package com.chg.springboottempalte.enums;
+package com.chg.pixCloud.enums;
 
 import lombok.Getter;
 

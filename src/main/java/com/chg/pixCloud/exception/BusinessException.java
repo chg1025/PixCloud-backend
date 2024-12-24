@@ -1,6 +1,6 @@
-package com.chg.springboottempalte.exception;
+package com.chg.pixCloud.exception;
 
-import com.chg.springboottempalte.enums.ErrorCode;
+import com.chg.pixCloud.enums.ErrorCode;
 import lombok.Getter;
 
 @Getter

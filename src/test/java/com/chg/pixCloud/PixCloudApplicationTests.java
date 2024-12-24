@@ -1,10 +1,10 @@
-package com.chg.springboottempalte;
+package com.chg.pixCloud;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SpringbootTempalteApplicationTests {
+class PixCloudApplicationTests {
 
     @Test
     void contextLoads() {

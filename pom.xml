@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.chg</groupId>
-    <artifactId>springboot-tempalte</artifactId>
+    <artifactId>PixCloud</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>springboot-tempalte</name>
-    <description>springboot-tempalte</description>
+    <name>PixCloud</name>
+    <description>PixCloud</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -87,7 +87,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.chg.springboottempalte.SpringbootTempalteApplication</mainClass>
+                    <mainClass>com.chg.pixCloud.PixCloudApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>

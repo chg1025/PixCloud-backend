@@ -1,7 +1,7 @@
-package com.chg.springboottempalte.controller;
+package com.chg.pixCloud.controller;
 
-import com.chg.springboottempalte.common.BaseResponse;
-import com.chg.springboottempalte.utils.ResultUtils;
+import com.chg.pixCloud.common.BaseResponse;
+import com.chg.pixCloud.utils.ResultUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

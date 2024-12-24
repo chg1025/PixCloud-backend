@@ -1,7 +1,7 @@
-package com.chg.springboottempalte.utils;
+package com.chg.pixCloud.utils;
 
-import com.chg.springboottempalte.enums.ErrorCode;
-import com.chg.springboottempalte.exception.BusinessException;
+import com.chg.pixCloud.enums.ErrorCode;
+import com.chg.pixCloud.exception.BusinessException;
 
 public class ThrowUtils {
 

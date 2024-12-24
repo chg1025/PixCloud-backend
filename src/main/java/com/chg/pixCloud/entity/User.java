@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chg.springboottempalte.entity;
+package com.chg.pixCloud.entity;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>

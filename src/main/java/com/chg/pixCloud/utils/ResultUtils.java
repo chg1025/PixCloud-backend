@@ -1,7 +1,7 @@
-package com.chg.springboottempalte.utils;
+package com.chg.pixCloud.utils;
 
-import com.chg.springboottempalte.common.BaseResponse;
-import com.chg.springboottempalte.enums.ErrorCode;
+import com.chg.pixCloud.common.BaseResponse;
+import com.chg.pixCloud.enums.ErrorCode;
 
 public class ResultUtils {
 
