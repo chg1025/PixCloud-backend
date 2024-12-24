@@ -1,6 +1,5 @@
 package com.chg.pixCloud.common;
 
-import com.chg.pixCloud.enums.ErrorCode;
 import lombok.Data;
 
 import java.io.Serializable;

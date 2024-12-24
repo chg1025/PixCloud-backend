@@ -1,6 +1,6 @@
 package com.chg.pixCloud.exception;
 
-import com.chg.pixCloud.enums.ErrorCode;
+import com.chg.pixCloud.common.ErrorCode;
 import lombok.Getter;
 
 @Getter

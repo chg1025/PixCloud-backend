@@ -1,7 +1,7 @@
 package com.chg.pixCloud.exception;
 
 import com.chg.pixCloud.common.BaseResponse;
-import com.chg.pixCloud.enums.ErrorCode;
+import com.chg.pixCloud.common.ErrorCode;
 import com.chg.pixCloud.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;

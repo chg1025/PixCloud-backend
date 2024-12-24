@@ -1,7 +1,7 @@
 package com.chg.pixCloud.utils;
 
 import com.chg.pixCloud.common.BaseResponse;
-import com.chg.pixCloud.enums.ErrorCode;
+import com.chg.pixCloud.common.ErrorCode;
 
 public class ResultUtils {
 

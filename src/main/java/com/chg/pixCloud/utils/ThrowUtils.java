@@ -1,6 +1,6 @@
 package com.chg.pixCloud.utils;
 
-import com.chg.pixCloud.enums.ErrorCode;
+import com.chg.pixCloud.common.ErrorCode;
 import com.chg.pixCloud.exception.BusinessException;
 
 public class ThrowUtils {

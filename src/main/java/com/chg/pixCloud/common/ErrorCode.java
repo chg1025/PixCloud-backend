@@ -1,4 +1,4 @@
-package com.chg.pixCloud.enums;
+package com.chg.pixCloud.common;
 
 import lombok.Getter;
 
