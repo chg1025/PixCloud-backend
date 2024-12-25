@@ -1,4 +1,4 @@
-package com.chg.pixCloud.model.dto;
+package com.chg.pixCloud.model.dto.user;
 
 import lombok.Data;
 
