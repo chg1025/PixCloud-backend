@@ -92,4 +92,13 @@ public interface UserService extends IService<User> {
      * @return 加密后密码
      */
     String getEncryptPassword(String password);
+
+    /**
+     * 是否为管理员
+     *
+     * @param user 用户
+     * @return
+     */
+    boolean isAdmin(User user);
+
 }

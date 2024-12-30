@@ -12,6 +12,12 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/pix_cloud
     username: root
     password: 123456
+  profiles:
+    active: local
+  # 文件上传体积限制
+  servlet:
+    multipart:
+      max-file-size: 6MB
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
