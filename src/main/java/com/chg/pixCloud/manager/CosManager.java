@@ -7,12 +7,12 @@ import com.qcloud.cos.model.GetObjectRequest;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.ciModel.persistence.PicOperations;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
 
-@Component
+@Service
 public class CosManager {
     @Resource
     CosClientConfig cosClientConfig;

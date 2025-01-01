@@ -12,4 +12,13 @@ public class PictureUploadRequest implements Serializable {
      * 图片id（用户修改）
      */
     private Long id;
+    /**
+     * 图片地址（url）
+     */
+    private String url;
+
+    /**
+     * 图片名称
+     */
+    private String name;
 }

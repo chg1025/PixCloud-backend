@@ -2,13 +2,14 @@ package com.chg.pixCloud.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.chg.pixCloud.model.dto.picture.PictureQueryRequest;
+import com.chg.pixCloud.model.dto.picture.PictureReviewRequest;
+import com.chg.pixCloud.model.dto.picture.PictureUploadByBatchRequest;
 import com.chg.pixCloud.model.dto.picture.PictureUploadRequest;
 import com.chg.pixCloud.model.entity.Picture;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.chg.pixCloud.model.entity.User;
 import com.chg.pixCloud.model.vo.PictureVO;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,12 +23,12 @@ public interface PictureService extends IService<Picture> {
     /**
      * 上传图片
      *
-     * @param multipartFile 上传图片信息
+     * @param inputSource   图片输入源
      * @param uploadRequest 图片id
      * @param user          上传信息
      * @return 图片信息
      */
-    PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest uploadRequest, User user);
+    PictureVO uploadPicture(Object inputSource, PictureUploadRequest uploadRequest, User user);
 
     /**
      * 根据查询请求构造查询条件
@@ -62,4 +63,29 @@ public interface PictureService extends IService<Picture> {
      * @param picture 图片
      */
     void validPicture(Picture picture);
+
+    /**
+     * 图片审核
+     *
+     * @param pictureReviewRequest 图片审核请求
+     * @param loginUser            登录用户
+     */
+    void pictureReview(PictureReviewRequest pictureReviewRequest, User loginUser);
+
+    /**
+     * 填充审核字段
+     *
+     * @param picture   图片信息
+     * @param loginUser 登录用户
+     */
+    void fillReviewParams(Picture picture, User loginUser);
+
+    /**
+     * 批量抓取和上传图片
+     *
+     * @param pictureUploadByBatchRequest 抓取请求
+     * @param loginUser                   登录用户
+     * @return 上传成功的图片数量
+     */
+    Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 }

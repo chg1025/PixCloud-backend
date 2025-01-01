@@ -13,7 +13,7 @@ import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -22,8 +22,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 抽象为模版方法实现，此服务已废弃
+ */
 @Slf4j
-@Component
+@Service
+@Deprecated
 public class FileManager {
     @Resource
     CosClientConfig cosClientConfig;
