@@ -10,6 +10,7 @@ import com.chg.pixCloud.model.dto.picture.PictureUploadRequest;
 import com.chg.pixCloud.model.entity.Picture;
 import com.chg.pixCloud.model.entity.User;
 import com.chg.pixCloud.model.vo.PictureVO;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -88,4 +89,12 @@ public interface PictureService extends IService<Picture> {
      * @return 上传成功的图片数量
      */
     Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
+
+    /**
+     * 清理图片
+     *
+     * @param oldPicture 清理图片
+     */
+    @Async
+    void clearPictureFile(Picture oldPicture);
 }

@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chg.pixCloud.common.ErrorCode;
 import com.chg.pixCloud.exception.BusinessException;
+import com.chg.pixCloud.manager.CosManager;
 import com.chg.pixCloud.manager.upload.FilePictureUpload;
 import com.chg.pixCloud.manager.upload.PictureUploadTemplate;
 import com.chg.pixCloud.manager.upload.UrlPictureUpload;
@@ -32,6 +33,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -55,6 +57,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     UrlPictureUpload urlPictureUpload;
     @Resource
     UserService userService;
+    @Resource
+    CosManager cosManager;
 
 
     @Override
@@ -75,8 +79,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
+            // 对象存储中的旧图片删除
+            this.clearPictureFile(oldPicture);
         }
-        // 上传图片，得到图片信息
+        // 上传图片到对象存储，得到图片信息
         // 根据用户划分目录
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
         // 根据inputSource上传类型，区分上传方式
@@ -103,6 +109,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private Picture persistencePictureInfo(User user, PictureUploadResult pictureUploadResult, PictureUploadRequest uploadRequest) {
         Picture picture = new Picture();
         picture.setUrl(pictureUploadResult.getUrl());
+        picture.setThumbnailUrl(pictureUploadResult.getThumbnailUrl());
         // 支持外层传递图片名称
         String picName = pictureUploadResult.getPicName();
         if (uploadRequest != null && StrUtil.isNotBlank(uploadRequest.getName())) {
@@ -363,6 +370,19 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         log.info("上传图片数量: [{}]", count);
         return count;
     }
+
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 清理压缩图
+        cosManager.deleteObject(oldPicture.getUrl());
+        // 清理缩略图
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            cosManager.deleteObject(thumbnailUrl);
+        }
+    }
+
 }
 
 

@@ -82,9 +82,9 @@ public class UrlPictureUpload extends PictureUploadTemplate {
     protected String getOriginalFilename(Object inputSource) {
         // 移除 URL 查询参数
         String url = URLUtil.getPath((String) inputSource);
-        // 图片名称默认是default, 图片后缀默认是jpeg
+        // 图片名称默认是default, 图片后缀默认是webp
         String imgName = "default";
-        String extName = "jpg";
+        String extName = "webp";
         try {
             imgName = FileUtil.mainName(url);
             // 使用 HuTool FileTypeUtil 获取文件类型
