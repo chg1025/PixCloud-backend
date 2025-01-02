@@ -102,6 +102,12 @@ public class PictureVO implements Serializable {
      */
     private UserVO user;
 
+    /**
+     * 空间 id
+     */
+    private Long spaceId;
+
+
 
     /**
      * 封装类转对象

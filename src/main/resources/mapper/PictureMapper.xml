@@ -26,10 +26,12 @@
         <result property="reviewerId" column="reviewerId" jdbcType="BIGINT"/>
         <result property="reviewTime" column="reviewTime" jdbcType="TIMESTAMP"/>
         <result property="thumbnailUrl" column="thumbnailUrl" jdbcType="VARCHAR"/>
+        <result property="spaceId" column="spaceId" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,url,thumbnailUrl,name,
+        id
+        ,url,thumbnailUrl,name,spaceId
     introduction,category,tags,
     picSize,picWidth,picHeight,
     picScale,picFormat,userId,
