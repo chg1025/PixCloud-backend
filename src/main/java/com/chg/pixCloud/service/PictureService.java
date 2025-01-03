@@ -3,10 +3,8 @@ package com.chg.pixCloud.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chg.pixCloud.model.dto.picture.PictureQueryRequest;
-import com.chg.pixCloud.model.dto.picture.PictureReviewRequest;
-import com.chg.pixCloud.model.dto.picture.PictureUploadByBatchRequest;
-import com.chg.pixCloud.model.dto.picture.PictureUploadRequest;
+import com.chg.pixCloud.common.DeleteRequest;
+import com.chg.pixCloud.model.dto.picture.*;
 import com.chg.pixCloud.model.entity.Picture;
 import com.chg.pixCloud.model.entity.User;
 import com.chg.pixCloud.model.vo.PictureVO;
@@ -22,12 +20,12 @@ import javax.servlet.http.HttpServletRequest;
 public interface PictureService extends IService<Picture> {
 
     /**
-     * 上传图片
+     * 上传图片（可重新上传）
      *
      * @param inputSource   图片输入源
      * @param uploadRequest 图片id
      * @param user          上传信息
-     * @return 图片信息
+     * @return 上传后的图片信息
      */
     PictureVO uploadPicture(Object inputSource, PictureUploadRequest uploadRequest, User user);
 
@@ -91,10 +89,62 @@ public interface PictureService extends IService<Picture> {
     Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 
     /**
+     * 删除图片
+     *
+     * @param deleteRequest 删除id
+     * @param request       删除请求
+     */
+    void deletePicture(DeleteRequest deleteRequest, HttpServletRequest request);
+
+    /**
+     * 编辑图片
+     *
+     * @param pictureEditRequest 图片修改参数
+     * @param request            编辑请求
+     */
+    void editPicture(PictureEditRequest pictureEditRequest, HttpServletRequest request);
+
+    /**
+     * 分页获取图片列表（普通用户）
+     *
+     * @param pictureQueryRequest 分页查询请求
+     * @param request             登录态
+     * @return 图片列表
+     */
+    Page<PictureVO> listPictureVOByPage(PictureQueryRequest pictureQueryRequest, HttpServletRequest request);
+
+    /**
+     * 分页获取图片列表（有缓存）
+     *
+     * @param pictureQueryRequest 分页查询请求
+     * @param request             登录态
+     * @return 图片列表
+     */
+    Page<PictureVO> listPictureVOByPageWithCache(PictureQueryRequest pictureQueryRequest,
+                                                 HttpServletRequest request);
+
+    /**
      * 清理图片
      *
      * @param oldPicture 清理图片
      */
     @Async
     void clearPictureFile(Picture oldPicture);
+
+    /**
+     * 鉴权（校验当前登录用户对某图片是否有编辑/删除权限）
+     *
+     * @param loginUser 当前登录用户
+     * @param picture   图片
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 根据id查询图片（用户）
+     *
+     * @param id      图片id
+     * @param request 查询请求
+     * @return 图片封装信息
+     */
+    PictureVO getPictureVOById(long id, HttpServletRequest request);
 }

@@ -1,18 +1,25 @@
 package com.chg.pixCloud.service.Impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chg.pixCloud.common.DeleteRequest;
 import com.chg.pixCloud.common.ErrorCode;
 import com.chg.pixCloud.exception.BusinessException;
 import com.chg.pixCloud.manager.CosManager;
-import com.chg.pixCloud.manager.upload.FilePictureUpload;
-import com.chg.pixCloud.manager.upload.UrlPictureUpload;
 import com.chg.pixCloud.mapper.SpaceMapper;
 import com.chg.pixCloud.model.dto.space.SpaceAddRequest;
+import com.chg.pixCloud.model.dto.space.SpaceEditRequest;
+import com.chg.pixCloud.model.dto.space.SpaceQueryRequest;
 import com.chg.pixCloud.model.dto.space.SpaceUpdateRequest;
 import com.chg.pixCloud.model.entity.Space;
 import com.chg.pixCloud.model.entity.User;
 import com.chg.pixCloud.model.enums.SpaceLevelEnum;
+import com.chg.pixCloud.model.vo.SpaceVO;
+import com.chg.pixCloud.model.vo.UserVO;
 import com.chg.pixCloud.service.SpaceService;
 import com.chg.pixCloud.service.UserService;
 import com.chg.pixCloud.utils.ThrowUtils;
@@ -21,9 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
-import java.util.Map;
-import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author c
@@ -33,10 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         implements SpaceService {
-    @Resource
-    FilePictureUpload filePictureUpload;
-    @Resource
-    UrlPictureUpload urlPictureUpload;
     @Resource
     UserService userService;
     @Resource
@@ -63,6 +67,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         Space space = new Space();
         BeanUtils.copyProperties(spaceUpdateRequest, space);
         // 自动填充数据
+        // TODO 若用户已购买扩容包，那么这一步不是会导致用户的空间容量重置为默认？
         this.fillSpaceBySpaceLevel(space);
         // 数据校验
         this.validSpace(space, false);
@@ -133,6 +138,82 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         }
     }
 
+    /**
+     * 删除空间，仅本人或管理员可删除
+     *
+     * @param deleteRequest 空间id
+     * @param request       登录用户
+     */
+    @Override
+    public void deleteSpace(DeleteRequest deleteRequest, HttpServletRequest request) {
+        if (deleteRequest == null || deleteRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        long spaceId = deleteRequest.getId();
+        // 判断是否存在
+        Space oldSpace = this.getById(spaceId);
+        ThrowUtils.throwIf(oldSpace == null, ErrorCode.NOT_FOUND_ERROR);
+        // 校验权限，仅本人或管理员可删除
+        if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 操作数据库
+        boolean removed = this.removeById(spaceId);
+        ThrowUtils.throwIf(!removed, ErrorCode.OPERATION_ERROR, "删除失败，请稍后重试");
+    }
+
+    /**
+     * 修改空间信息（用户）
+     *
+     * @param spaceEditRequest 空间更新信息
+     * @param request          登录用户
+     */
+    @Override
+    public void editSpace(SpaceEditRequest spaceEditRequest, HttpServletRequest request) {
+        if (spaceEditRequest == null || spaceEditRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 判断是否存在
+        User loginUser = userService.getLoginUser(request);
+        long spaceId = spaceEditRequest.getId();
+        Space oldSpace = this.getById(spaceId);
+        ThrowUtils.throwIf(oldSpace == null, ErrorCode.NOT_FOUND_ERROR);
+        // 校验权限，仅本人或管理员可编辑
+        if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 在此处将实体类和 DTO 进行转换
+        Space space = new Space();
+        BeanUtils.copyProperties(spaceEditRequest, space);
+        // 填充空间额度
+        fillSpaceBySpaceLevel(space);
+        // 设置编辑时间
+        space.setEditTime(new Date());
+        // 数据校验
+        this.validSpace(space, false);
+        // 操作数据库
+        boolean result = this.updateById(space);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+    }
+
+    /**
+     * 分页获取空间列表（用户）
+     *
+     * @param spaceQueryRequest
+     * @param request
+     * @return
+     */
+    @Override
+    public Page<SpaceVO> listSpaceVOByPage(SpaceQueryRequest spaceQueryRequest, HttpServletRequest request) {
+        long size = spaceQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        long current = spaceQueryRequest.getCurrent();
+        Page<Space> spacePage = this.page(new Page<>(current, size), getQueryWrapper(spaceQueryRequest));
+        return getSpaceVOPage(spacePage, request);
+    }
+
 
     /**
      * 校验空间数据
@@ -184,6 +265,84 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                 space.setMaxCount(maxCount);
             }
         }
+    }
+
+    @Override
+    public SpaceVO getSpaceVO(Space space, HttpServletRequest request) {
+        // 对象转封装类
+        SpaceVO spaceVO = SpaceVO.objToVo(space);
+        // 关联查询用户信息
+        Long userId = spaceVO.getUserId();
+        if (userId != null && userId > 0) {
+            User user = userService.getById(userId);
+            UserVO userVO = userService.getUserVO(user);
+            spaceVO.setUser(userVO);
+        }
+        return spaceVO;
+    }
+
+    @Override
+    public Page<SpaceVO> getSpaceVOPage(Page<Space> spacePage, HttpServletRequest request) {
+        List<Space> spaceList = spacePage.getRecords();
+        Page<SpaceVO> spaceVOPage = new Page<>(spacePage.getCurrent(), spacePage.getSize(), spacePage.getTotal());
+        if (CollUtil.isEmpty(spaceList)) {
+            return spaceVOPage;
+        }
+        // 包括将空间对象列表转换为视图对象列表
+        List<SpaceVO> spaceVOList = spaceList.stream()
+                .map(SpaceVO::objToVo)
+                .collect(Collectors.toList());
+        // 1. 关联查询用户信息
+        // 1.1 提取用户id的Set集合，避免重复查询
+        Set<Long> userIdSet = spaceList.stream()
+                .map(Space::getUserId)
+                .collect(Collectors.toSet());
+        // 1.2 查询用户信息，按用户 ID（User::getId）对用户信息分组，生成 Map<Long, List<User>>。
+        // 其中 key 是用户 id，value 是对应的用户对象列表（通常一个 id 对应一个用户，List<User> 长度为 1）
+        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet)
+                .stream()
+                .collect(Collectors.groupingBy(User::getId));
+        // 2. 填充信息
+        spaceVOList.forEach(spaceVO -> {
+            Long userId = spaceVO.getUserId();
+            User user = null;
+            if (userIdUserListMap.containsKey(userId)) {
+                // 获取用户分组中第一个用户对象
+                user = userIdUserListMap.get(userId).get(0);
+            }
+            spaceVO.setUser(userService.getUserVO(user));
+        });
+        spaceVOPage.setRecords(spaceVOList);
+        return spaceVOPage;
+    }
+
+    /**
+     * 根据查询请求构造查询条件
+     *
+     * @param spaceQueryRequest 查询请求
+     * @return 查询条件
+     */
+    @Override
+    public QueryWrapper<Space> getQueryWrapper(SpaceQueryRequest spaceQueryRequest) {
+        QueryWrapper<Space> queryWrapper = new QueryWrapper<>();
+        if (spaceQueryRequest == null) {
+            return queryWrapper;
+        }
+        // 从对象中取值
+        Long id = spaceQueryRequest.getId();
+        Long userId = spaceQueryRequest.getUserId();
+        String spaceName = spaceQueryRequest.getSpaceName();
+        Integer spaceLevel = spaceQueryRequest.getSpaceLevel();
+        String sortField = spaceQueryRequest.getSortField();
+        String sortOrder = spaceQueryRequest.getSortOrder();
+        // 拼接查询条件
+        queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
+        queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
+        queryWrapper.like(StrUtil.isNotBlank(spaceName), "spaceName", spaceName);
+        queryWrapper.like(ObjUtil.isNotEmpty(spaceLevel), "spaceLevel", spaceLevel);
+        // 排序
+        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+        return queryWrapper;
     }
 
 
