@@ -33,6 +33,14 @@ public class SpaceController {
     @Resource
     UserService userService;
 
+    /**
+     * 创建空间
+     *
+     * @param spaceAddRequest 创建空间请求
+     * @param request         登录用户
+     * @return 空间 id
+     */
+    @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(spaceAddRequest == null || request == null, ErrorCode.PARAMS_ERROR);
         long spaceId = spaceService.addSpace(spaceAddRequest, userService.getLoginUser(request));

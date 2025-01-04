@@ -137,7 +137,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             if (spaceId == null && oldPicture.getSpaceId() != null) {
                 spaceId = oldPicture.getSpaceId();
             } else {
-                // 传了 spaceId，必须和原有图片一致
                 if (ObjUtil.notEqual(spaceId, oldPicture.getSpaceId())) {
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "空间 id 不一致");
                 }
@@ -184,7 +183,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
                         .setSql("totalCount = totalCount - 1")
                         .update();
                 ThrowUtils.throwIf(!removed, ErrorCode.OPERATION_ERROR, "原照片操作异常");
-                this.clearPictureFile(oldPicture);
             }
             if (finalSpaceId != null) {
                 boolean updated = spaceService.lambdaUpdate()
@@ -196,6 +194,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             }
             return persistencePicture;
         });
+        // 事务正常提交后，才异步删除对象存储中的旧数据，（对象存储中数据无法回滚，必须确保数据库正常操作，才删除对象存储中数据）
+        if (oldPicture != null) {
+            clearPictureFile(oldPicture);
+        }
         return PictureVO.objToVo(resPicture);
     }
 
@@ -283,7 +285,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
         queryWrapper.eq(ObjUtil.isNotEmpty(spaceId), "spaceId", spaceId);
-        queryWrapper.isNull(nullSpaceId, "nullSpaceId");
+        queryWrapper.isNull(nullSpaceId, "spaceId");
         // JSON 数组查询
         if (CollUtil.isNotEmpty(tags)) {
             for (String tag : tags) {
@@ -340,7 +342,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             Long userId = pictureVO.getUserId();
             User user = null;
             if (userIdUserListMap.containsKey(userId)) {
-                // 获取用户分组中第一个用户对象
+                // 获取用户分组中第一个用space户对象
                 user = userIdUserListMap.get(userId).get(0);
             }
             pictureVO.setUser(userService.getUserVO(user));
@@ -644,7 +646,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         }
         // 3. 缓存未命中，查询数据库
         Page<Picture> picturePage = this.page(new Page<>(current, size),
-                this.getQueryWrapper(pictureQueryRequest));
+                getQueryWrapper(pictureQueryRequest));
         Page<PictureVO> pictureVOPage = this.getPictureVOPage(picturePage, request);
         // 4. 更新缓存
         // 查询结果写入caffeine本地缓存

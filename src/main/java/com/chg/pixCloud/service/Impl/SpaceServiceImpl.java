@@ -122,7 +122,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                 // 数据库操作，事务管理
                 Long newSpaceId = transactionTemplate.execute(status -> {
                     boolean exists = this.lambdaQuery().eq(Space::getUserId, userId).exists();
-                    ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "每个用户仅能有一个私有空间");
+                    ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "每个用户只能有一个私有空间");
                     // 写入数据库
                     boolean result = this.save(space);
                     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

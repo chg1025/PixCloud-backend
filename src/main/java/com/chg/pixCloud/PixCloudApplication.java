@@ -1,8 +1,10 @@
 package com.chg.pixCloud;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
@@ -17,6 +19,9 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 public class PixCloudApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(PixCloudApplication.class, args);
+        ApplicationContext applicationContext = SpringApplication.run(PixCloudApplication.class, args);
+        HikariDataSource hikariDataSource = applicationContext.getBean(HikariDataSource.class);
+        System.out.println(hikariDataSource.getHikariPoolMXBean().getActiveConnections());
+
     }
 }
