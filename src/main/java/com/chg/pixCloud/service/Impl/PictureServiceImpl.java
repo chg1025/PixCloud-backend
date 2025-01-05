@@ -213,6 +213,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         picture.setUrl(pictureUploadResult.getUrl());
         picture.setThumbnailUrl(pictureUploadResult.getThumbnailUrl());
         long spaceId = uploadRequest.getSpaceId();
+        fillReviewParams(picture, user, spaceId);
         // 若更新请求中有 spaceId，当代码执行到这，则表示 spaceId 通过验证，可正常更新
         if (spaceId > 0) {
             picture.setSpaceId(spaceId);
@@ -229,7 +230,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         picture.setPicScale(pictureUploadResult.getPicScale());
         picture.setPicFormat(pictureUploadResult.getPicFormat());
         picture.setUserId(user.getId());
-        this.fillReviewParams(picture, user);
         return picture;
     }
 
@@ -406,13 +406,19 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
      * @param loginUser 登录用户
      */
     @Override
-    public void fillReviewParams(Picture picture, User loginUser) {
+    public void fillReviewParams(Picture picture, User loginUser, long spaceId) {
         if (userService.isAdmin(loginUser)) {
             // 管理员自动过审
             picture.setReviewerId(loginUser.getId());
             picture.setReviewTime(new Date());
             picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
             picture.setReviewMessage("管理员自动过审");
+        } else if (spaceId > 0) {
+            //   用户私有空间自动过审
+            picture.setReviewerId(loginUser.getId());
+            picture.setReviewTime(new Date());
+            picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+            picture.setReviewMessage("用户私有空间自动过审");
         } else {
             // 非管理员，编辑后置为待审核
             picture.setReviewStatus(PictureReviewStatusEnum.REVIEWING.getValue());
@@ -549,7 +555,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 数据校验
         this.validPicture(picture);
         // 填充审核参数
-        this.fillReviewParams(picture, loginUser);
+        long spaceId = oldPicture.getSpaceId();
+        fillReviewParams(picture, loginUser, spaceId);
         // 操作数据库
         boolean result = this.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

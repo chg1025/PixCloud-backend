@@ -77,7 +77,7 @@ public interface PictureService extends IService<Picture> {
      * @param picture   图片信息
      * @param loginUser 登录用户
      */
-    void fillReviewParams(Picture picture, User loginUser);
+    void fillReviewParams(Picture picture, User loginUser, long spaceId);
 
     /**
      * 批量抓取和上传图片

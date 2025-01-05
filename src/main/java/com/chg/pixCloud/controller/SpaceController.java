@@ -98,7 +98,7 @@ public class SpaceController {
      * 根据 id 获取图片（封装类）(普通用户使用)
      */
     @GetMapping("/get/vo")
-    public BaseResponse<SpaceVO> getPictureVOById(long id, HttpServletRequest request) {
+    public BaseResponse<SpaceVO> getSpaceVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0 || request == null, ErrorCode.PARAMS_ERROR);
         Space space = spaceService.getById(id);
 

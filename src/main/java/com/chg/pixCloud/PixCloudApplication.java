@@ -1,6 +1,5 @@
 package com.chg.pixCloud;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,8 +19,6 @@ public class PixCloudApplication {
 
     public static void main(String[] args) {
         ApplicationContext applicationContext = SpringApplication.run(PixCloudApplication.class, args);
-        HikariDataSource hikariDataSource = applicationContext.getBean(HikariDataSource.class);
-        System.out.println(hikariDataSource.getHikariPoolMXBean().getActiveConnections());
 
     }
 }
