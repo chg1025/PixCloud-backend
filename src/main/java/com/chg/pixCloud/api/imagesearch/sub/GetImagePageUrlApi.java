@@ -63,6 +63,7 @@ public class GetImagePageUrlApi {
             if (searchResultUrl == null) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "未返回有效结果");
             }
+            log.info("Step 1 获取图片页面 URL：{}", searchResultUrl);
             return searchResultUrl;
         } catch (Exception e) {
             log.error("搜索失败", e);

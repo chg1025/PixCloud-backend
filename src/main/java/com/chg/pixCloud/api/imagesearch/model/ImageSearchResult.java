@@ -10,7 +10,7 @@ public class ImageSearchResult {
     /**
      * 缩略图地址
      */
-    private String thumbnailUrl;
+    private String thumbUrl;
 
     /**
      * 来源地址

@@ -62,7 +62,9 @@ public class GetImageListApi {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未获取到图片列表");
         }
         JSONArray list = data.getJSONArray("list");
-        return JSONUtil.toList(list, ImageSearchResult.class);
+        List<ImageSearchResult> imageSearchResults = JSONUtil.toList(list, ImageSearchResult.class);
+        log.info("获取图片列表成功:{}", imageSearchResults);
+        return imageSearchResults;
     }
 
     public static void main(String[] args) {

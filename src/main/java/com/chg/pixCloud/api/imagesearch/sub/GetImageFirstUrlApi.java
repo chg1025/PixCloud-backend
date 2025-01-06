@@ -44,12 +44,12 @@ public class GetImageFirstUrlApi {
                         String firstUrl = matcher.group(1);
                         // 处理转义字符  
                         firstUrl = firstUrl.replace("\\/", "/");
+                        log.info("Step 2 , firstUrl:{}", firstUrl);
                         return firstUrl;
                     }
                 }
             }
-
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未找到 url");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未找到 firstUrl");
         } catch (Exception e) {
             log.error("搜索失败", e);
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "搜索失败");

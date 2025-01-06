@@ -246,7 +246,9 @@ public class PictureController {
         ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR);
         Picture oldPicture = pictureService.getById(pictureId);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        List<ImageSearchResult> resultList = ImageSearchApiFacade.searchImage(oldPicture.getUrl());
+        String imageUrl = oldPicture.getThumbnailUrl();
+        log.info("搜索原图:{}", imageUrl);
+        List<ImageSearchResult> resultList = ImageSearchApiFacade.searchImage(imageUrl);
         return ResultUtils.success(resultList);
     }
 
