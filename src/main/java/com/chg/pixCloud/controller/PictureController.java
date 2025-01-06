@@ -3,6 +3,8 @@ package com.chg.pixCloud.controller;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chg.pixCloud.annotation.AuthCheck;
+import com.chg.pixCloud.api.imagesearch.ImageSearchApiFacade;
+import com.chg.pixCloud.api.imagesearch.model.ImageSearchResult;
 import com.chg.pixCloud.common.BaseResponse;
 import com.chg.pixCloud.common.DeleteRequest;
 import com.chg.pixCloud.common.ErrorCode;
@@ -230,6 +232,24 @@ public class PictureController {
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
     }
+
+    /**
+     * 以图搜图
+     *
+     * @param searchPictureByPictureRequest 原图信息（图片 id）
+     * @return 图片搜索结果列表
+     */
+    @PostMapping("/search/picture")
+    public BaseResponse<List<ImageSearchResult>> searchPictureByPicture(@RequestBody SearchPictureByPictureRequest searchPictureByPictureRequest) {
+        ThrowUtils.throwIf(searchPictureByPictureRequest == null, ErrorCode.PARAMS_ERROR);
+        Long pictureId = searchPictureByPictureRequest.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR);
+        Picture oldPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        List<ImageSearchResult> resultList = ImageSearchApiFacade.searchImage(oldPicture.getUrl());
+        return ResultUtils.success(resultList);
+    }
+
 
 }
 
