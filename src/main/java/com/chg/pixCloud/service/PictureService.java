@@ -9,6 +9,7 @@ import com.chg.pixCloud.model.entity.Picture;
 import com.chg.pixCloud.model.entity.User;
 import com.chg.pixCloud.model.vo.PictureVO;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -152,10 +153,19 @@ public interface PictureService extends IService<Picture> {
     /**
      * 根据颜色搜索图片
      *
-     * @param spaceId  空间ID
-     * @param picColor 图片颜色
+     * @param spaceId   空间ID
+     * @param picColor  图片颜色
      * @param loginUser 登录用户
      * @return 搜索结果列表
      */
     List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
+
+    /**
+     * 批量编辑图片信息
+     *
+     * @param pictureEditByBatchRequest 批量编辑图片请求
+     * @param loginUser                 登录用户
+     */
+    @Transactional(rollbackFor = Exception.class)
+    void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
 }
