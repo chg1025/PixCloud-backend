@@ -87,6 +87,7 @@ public abstract class PictureUploadTemplate {
             ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
             List<CIObject> objectList = processResults.getObjectList();
             if (CollUtil.isNotEmpty(objectList)) {
+                // 数据万象的处理结果中存在生成的图片对象（包括压缩图和缩略图）
                 CIObject compressedCIObject = objectList.get(0);
                 // 缩略图默认等于压缩图
                 CIObject thumbnailCIObject = compressedCIObject;
@@ -95,9 +96,10 @@ public abstract class PictureUploadTemplate {
                     thumbnailCIObject = objectList.get(1);
                 }
                 // 封装压缩图返回结果
-                return getPictureUploadResult(originalFilename, compressedCIObject, thumbnailCIObject);
+                return getPictureUploadResult(originalFilename, compressedCIObject, thumbnailCIObject, imageInfo);
             }
             // 6. 返回文件上传结果
+            // 数据万象处理没有生成任何压缩图或缩略图。此时直接使用上传的图片信息（imageInfo）、上传路径、原始文件名等封装结果。
             return getPictureUploadResult(imageInfo, uploadPath, originalFilename, file);
         } catch (Exception e) {
             log.error("图片上传到对象存储失败");
@@ -110,7 +112,7 @@ public abstract class PictureUploadTemplate {
         }
     }
 
-    private PictureUploadResult getPictureUploadResult(String originFilename, CIObject compressedCiObject, CIObject thumbnailCiObject) {
+    private PictureUploadResult getPictureUploadResult(String originFilename, CIObject compressedCiObject, CIObject thumbnailCiObject, ImageInfo imageInfo) {
         PictureUploadResult uploadPictureResult = new PictureUploadResult();
         int picWidth = compressedCiObject.getWidth();
         int picHeight = compressedCiObject.getHeight();
@@ -121,6 +123,8 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicScale(picScale);
         uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
         uploadPictureResult.setPicSize(compressedCiObject.getSize().longValue());
+        // 设置图片颜色
+        uploadPictureResult.setPicColor(imageInfo.getAve());
         // 设置图片为压缩后的地址
         uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + compressedCiObject.getKey());
         uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbnailCiObject.getKey());
@@ -151,6 +155,8 @@ public abstract class PictureUploadTemplate {
         pictureUploadResult.setPicHeight(imageHeight);
         pictureUploadResult.setPicScale(imageScale);
         pictureUploadResult.setPicFormat(imageInfo.getFormat());
+        // 设置图片颜色
+        pictureUploadResult.setPicColor(imageInfo.getAve());
         return pictureUploadResult;
     }
 

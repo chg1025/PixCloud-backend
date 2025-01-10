@@ -252,6 +252,23 @@ public class PictureController {
         return ResultUtils.success(resultList);
     }
 
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param searchPictureByColorRequest 请求对象，包含颜色和空间 ID
+     * @param request                     HttpServletRequest 对象，用于获取登录用户信息
+     * @return 包含搜索结果的 PictureVO 列表
+     */
+    @PostMapping("/search/color")
+    public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorRequest searchPictureByColorRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(searchPictureByColorRequest == null, ErrorCode.PARAMS_ERROR);
+        String picColor = searchPictureByColorRequest.getPicColor();
+        Long spaceId = searchPictureByColorRequest.getSpaceId();
+        User loginUser = userService.getLoginUser(request);
+        List<PictureVO> result = pictureService.searchPictureByColor(spaceId, picColor, loginUser);
+        return ResultUtils.success(result);
+    }
+
 
 }
 

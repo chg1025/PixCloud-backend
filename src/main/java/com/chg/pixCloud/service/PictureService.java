@@ -11,6 +11,7 @@ import com.chg.pixCloud.model.vo.PictureVO;
 import org.springframework.scheduling.annotation.Async;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author chg
@@ -147,4 +148,14 @@ public interface PictureService extends IService<Picture> {
      * @return 图片封装信息
      */
     PictureVO getPictureVOById(long id, HttpServletRequest request);
+
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param spaceId  空间ID
+     * @param picColor 图片颜色
+     * @param loginUser 登录用户
+     * @return 搜索结果列表
+     */
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
 }
