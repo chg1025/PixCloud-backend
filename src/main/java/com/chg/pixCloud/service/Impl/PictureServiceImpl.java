@@ -10,6 +10,9 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chg.pixCloud.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.chg.pixCloud.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.chg.pixCloud.api.aliyunai.service.AliYunAiApi;
 import com.chg.pixCloud.common.DeleteRequest;
 import com.chg.pixCloud.common.ErrorCode;
 import com.chg.pixCloud.exception.BusinessException;
@@ -82,6 +85,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     StringRedisTemplate stringRedisTemplate;
     @Resource
     private TransactionTemplate transactionTemplate;
+    @Resource
+    private AliYunAiApi aliYunAiApi;
 
 
     private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder()
@@ -886,6 +891,30 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         }
     }
 
+    /**
+     * 创建扩图任务
+     *
+     * @param createPictureOutPaintingTaskRequest 创建扩图任务请求
+     * @param loginUser                           登录用户
+     * @return 创建扩图任务响应
+     */
+    @Override
+    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser) {
+        // 获取图片信息
+        Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
+        Picture picture = Optional.ofNullable(this.getById(pictureId))
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR));
+        // 权限校验
+        checkPictureAuth(loginUser, picture);
+        // 构造请求参数
+        CreateOutPaintingTaskRequest taskRequest = new CreateOutPaintingTaskRequest();
+        CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
+        input.setImageUrl(picture.getUrl());
+        taskRequest.setInput(input);
+        BeanUtil.copyProperties(createPictureOutPaintingTaskRequest, taskRequest);
+        // 创建任务
+        return aliYunAiApi.createOutPaintingTask(taskRequest);
+    }
 
 }
 
