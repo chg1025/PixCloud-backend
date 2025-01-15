@@ -2,7 +2,9 @@ package com.chg.pixCloud.utils;
 
 import com.chg.pixCloud.common.ErrorCode;
 import com.chg.pixCloud.exception.BusinessException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RGBConverterUtils {
 
     /**
@@ -30,7 +32,8 @@ public class RGBConverterUtils {
             // 如果是6位，直接返回
             return rgb;
         } else {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片色彩格式错误");
+            log.error("图片色彩格式错误:[{}],设置默认值0x000000", rgb);
+            return "0x000000";
         }
     }
 

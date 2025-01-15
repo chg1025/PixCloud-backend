@@ -220,7 +220,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         Picture picture = new Picture();
         picture.setUrl(pictureUploadResult.getUrl());
         picture.setThumbnailUrl(pictureUploadResult.getThumbnailUrl());
-        long spaceId = uploadRequest.getSpaceId();
+        long spaceId = 0L;
+        try {
+            spaceId = uploadRequest.getSpaceId();
+        } catch (Exception e) {
+            log.info("空间 id 为空，默认上传至公共图库, [{}]", picture.getUrl());
+        }
         fillReviewParams(picture, user, spaceId);
         // 若更新请求中有 spaceId，当代码执行到这，则表示 spaceId 通过验证，可正常更新
         if (spaceId > 0) {
@@ -484,7 +489,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
                     // 图片名称前缀默认为搜索词
                     String namePrefix = pictureUploadByBatchRequest.getNamePrefix() != null ? pictureUploadByBatchRequest.getNamePrefix() : q;
                     pictureUploadRequest.setName(namePrefix + (count + 1));
-                    PictureVO pictureVO = this.uploadPicture(imgUrl, pictureUploadRequest, loginUser);
+                    PictureVO pictureVO = uploadPicture(imgUrl, pictureUploadRequest, loginUser);
                     log.info("图片上传成功id:[{}]", pictureVO.getId());
                     count++;
                 } catch (Exception e) {
@@ -570,7 +575,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 数据校验
         this.validPicture(picture);
         // 填充审核参数
-        long spaceId = oldPicture.getSpaceId();
+        long spaceId = 0L;
+        try {
+            spaceId = oldPicture.getSpaceId();
+        } catch (Exception e) {
+            log.info("空间 id 为空，默认公共图库, [{}]", oldPicture.getUrl());
+        }
         fillReviewParams(picture, loginUser, spaceId);
         // 操作数据库
         boolean result = this.updateById(picture);
