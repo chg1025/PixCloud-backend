@@ -322,6 +322,16 @@ public class PictureController {
         return ResultUtils.success(task);
     }
 
+    /**
+     * 刷新 listPictureVOByPage 所有相关缓存
+     *
+     * @return 刷新结果
+     */
+    @GetMapping("/refreshAll")
+    public BaseResponse<Boolean> refreshAllListPictureVOByPageCache() {
+        boolean result = pictureService.refreshAllListPictureVOByPageCache();
+        return ResultUtils.success(result);
+    }
 
 }
 

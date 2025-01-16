@@ -178,4 +178,11 @@ public interface PictureService extends IService<Picture> {
      * @return 创建扩图任务响应
      */
     CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
+
+    /**
+     * 刷新所有与 listPictureVOByPage 相关的缓存
+     *
+     * @return 刷新状态
+     */
+    boolean refreshAllListPictureVOByPageCache();
 }

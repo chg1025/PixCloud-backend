@@ -89,8 +89,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private AliYunAiApi aliYunAiApi;
 
 
-    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder()
-            .initialCapacity(1024) // 初始容量
+    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder().initialCapacity(1024) // 初始容量
             .maximumSize(10_000) // 最大数据量
             .expireAfterWrite(Duration.ofMinutes(5)) // 缓存5min后移除
             .build();
@@ -189,20 +188,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             if (finalSpaceId != null && update) {
                 // 空间id存在，且为更新则将旧照片的数量和大小更新到空间
                 // 对象存储中的旧图片删除
-                boolean removed = spaceService.lambdaUpdate()
-                        .eq(Space::getId, finalSpaceId)
-                        .setSql("totalSize = totalSize - " + oldPicturePicSize)
-                        .setSql("totalCount = totalCount - 1")
-                        .update();
+                boolean removed = spaceService.lambdaUpdate().eq(Space::getId, finalSpaceId).setSql("totalSize = totalSize - " + oldPicturePicSize).setSql("totalCount = totalCount - 1").update();
                 ThrowUtils.throwIf(!removed, ErrorCode.OPERATION_ERROR, "原照片操作异常");
             }
             // 空间id存在，则将新照片数量和大小更新到空间
             if (finalSpaceId != null) {
-                boolean updated = spaceService.lambdaUpdate()
-                        .eq(Space::getId, finalSpaceId)
-                        .setSql("totalSize = totalSize + " + persistencePicture.getPicSize())
-                        .setSql("totalCount = totalCount + 1")
-                        .update();
+                boolean updated = spaceService.lambdaUpdate().eq(Space::getId, finalSpaceId).setSql("totalSize = totalSize + " + persistencePicture.getPicSize()).setSql("totalCount = totalCount + 1").update();
                 ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR, "额度更新失败");
             }
             return persistencePicture;
@@ -290,10 +281,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 从多字段中搜索
         if (StrUtil.isNotBlank(searchText)) {
             // 需要拼接查询条件
-            queryWrapper.and(qw -> qw.like("name", searchText)
-                    .or()
-                    .like("introduction", searchText)
-            );
+            queryWrapper.and(qw -> qw.like("name", searchText).or().like("introduction", searchText));
         }
         queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
@@ -349,19 +337,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             return pictureVOPage;
         }
         // 包括将图片对象列表转换为视图对象列表
-        List<PictureVO> pictureVOList = pictureList.stream()
-                .map(PictureVO::objToVo)
-                .collect(Collectors.toList());
+        List<PictureVO> pictureVOList = pictureList.stream().map(PictureVO::objToVo).collect(Collectors.toList());
         // 1. 关联查询用户信息
         // 1.1 提取用户id的Set集合，避免重复查询
-        Set<Long> userIdSet = pictureList.stream()
-                .map(Picture::getUserId)
-                .collect(Collectors.toSet());
+        Set<Long> userIdSet = pictureList.stream().map(Picture::getUserId).collect(Collectors.toSet());
         // 1.2 查询用户信息，按用户 ID（User::getId）对用户信息分组，生成 Map<Long, List<User>>。
         // 其中 key 是用户 id，value 是对应的用户对象列表（通常一个 id 对应一个用户，List<User> 长度为 1）
-        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet)
-                .stream()
-                .collect(Collectors.groupingBy(User::getId));
+        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream().collect(Collectors.groupingBy(User::getId));
         // 2. 填充信息
         pictureVOList.forEach(pictureVO -> {
             Long userId = pictureVO.getUserId();
@@ -471,10 +453,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         String url = String.format("https://cn.bing.com/images/async?q=%s&first=%s&count=%s&mmasync=1", URLUtil.encode(q), current, pageSize);
         try {
             // 使用 Jsoup 连接并获取文档
-            Document document = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Macintosh; Apple Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
-                    .timeout(20000)
-                    .get();
+            Document document = Jsoup.connect(url).userAgent("Mozilla/5.0 (Macintosh; Apple Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36").timeout(20000).get();
             // 解析内容
             // 获取所有图片的元素（<img> 标签）
             Elements imgElements = document.select("img");
@@ -539,11 +518,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             // 释放额度
             Long spaceId = oldPicture.getSpaceId();
             if (spaceId != null) {
-                boolean update = spaceService.lambdaUpdate()
-                        .eq(Space::getId, spaceId)
-                        .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
-                        .setSql("totalCount = totalCount - 1")
-                        .update();
+                boolean update = spaceService.lambdaUpdate().eq(Space::getId, spaceId).setSql("totalSize = totalSize - " + oldPicture.getPicSize()).setSql("totalCount = totalCount - 1").update();
                 ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "额度更新失败");
             }
             return true;
@@ -623,8 +598,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             }
         }
         // 查询数据库
-        Page<Picture> picturePage = this.page(new Page<>(current, size),
-                this.getQueryWrapper(pictureQueryRequest));
+        Page<Picture> picturePage = this.page(new Page<>(current, size), this.getQueryWrapper(pictureQueryRequest));
         // 获取封装类
         return this.getPictureVOPage(picturePage, request);
     }
@@ -637,8 +611,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
      * @return 图片列表
      */
     @Override
-    public Page<PictureVO> listPictureVOByPageWithCache(PictureQueryRequest pictureQueryRequest,
-                                                        HttpServletRequest request) {
+    public Page<PictureVO> listPictureVOByPageWithCache(PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
@@ -682,8 +655,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             return pictureVOPage;
         }
         // 3. 缓存未命中，查询数据库
-        Page<Picture> picturePage = this.page(new Page<>(current, size),
-                getQueryWrapper(pictureQueryRequest));
+        Page<Picture> picturePage = this.page(new Page<>(current, size), getQueryWrapper(pictureQueryRequest));
         Page<PictureVO> pictureVOPage = this.getPictureVOPage(picturePage, request);
         // 4. 更新缓存
         // 查询结果写入caffeine本地缓存
@@ -778,10 +750,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
         }
         // 3. 查询该空间下所有图片（必须有主色调）
-        List<Picture> pictureList = this.lambdaQuery()
-                .eq(Picture::getSpaceId, spaceId)
-                .isNotNull(Picture::getPicColor)
-                .list();
+        List<Picture> pictureList = this.lambdaQuery().eq(Picture::getSpaceId, spaceId).isNotNull(Picture::getPicColor).list();
         // 如果没有图片，直接返回空列表
         if (CollUtil.isEmpty(pictureList)) {
             return Collections.emptyList();
@@ -789,8 +758,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 将目标颜色转为 Color 对象
         Color targetColor = Color.decode(picColor);
         // 4. 计算相似度并排序
-        List<Picture> sortedPictures = pictureList.stream()
-                .sorted(Comparator.comparingDouble(picture -> {
+        List<Picture> sortedPictures = pictureList.stream().sorted(Comparator.comparingDouble(picture -> {
                     // 提取图片主色调
                     String hexColor = picture.getPicColor();
                     // 没有主色调的图片放到最后
@@ -803,13 +771,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
                     return -ColorSimilarUtils.calculateSimilarity(targetColor, pictureColor);
                 }))
                 // 取前 12 个
-                .limit(12)
-                .collect(Collectors.toList());
+                .limit(12).collect(Collectors.toList());
 
         // 转换为 PictureVO
-        return sortedPictures.stream()
-                .map(PictureVO::objToVo)
-                .collect(Collectors.toList());
+        return sortedPictures.stream().map(PictureVO::objToVo).collect(Collectors.toList());
     }
 
     /**
@@ -835,11 +800,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         }
 
         // 3. 查询指定图片，仅选择需要的字段
-        List<Picture> pictureList = this.lambdaQuery()
-                .select(Picture::getId, Picture::getSpaceId)
-                .eq(Picture::getSpaceId, spaceId)
-                .in(Picture::getId, pictureIdList)
-                .list();
+        List<Picture> pictureList = this.lambdaQuery().select(Picture::getId, Picture::getSpaceId).eq(Picture::getSpaceId, spaceId).in(Picture::getId, pictureIdList).list();
 
         if (pictureList.isEmpty()) {
             return;
@@ -902,8 +863,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser) {
         // 获取图片信息
         Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
-        Picture picture = Optional.ofNullable(this.getById(pictureId))
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR));
+        Picture picture = Optional.ofNullable(this.getById(pictureId)).orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR));
         // 权限校验
         checkPictureAuth(loginUser, picture);
         // 构造请求参数
@@ -915,6 +875,34 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 创建任务
         return aliYunAiApi.createOutPaintingTask(taskRequest);
     }
+
+    /**
+     * 刷新所有与 listPictureVOByPage 相关的缓存
+     *
+     * @return 刷新状态
+     */
+    @Override
+    public boolean refreshAllListPictureVOByPageCache() {
+        // 定义缓存前缀
+        String cachePrefix = "pixpicture:listPictureVOByPage:";
+
+        // 1. 删除本地 Caffeine 缓存
+        LOCAL_CACHE.asMap().keySet().stream()
+                .filter(key -> key.startsWith(cachePrefix))
+                .forEach(LOCAL_CACHE::invalidate);
+
+        // 2. 删除 Redis 缓存
+        // 使用 Redis 的 keys 命令找到所有匹配的键（需谨慎，keys 命令可能性能较低）
+        Set<String> keys = stringRedisTemplate.keys(cachePrefix + "*");
+        if (keys != null && !keys.isEmpty()) {
+            stringRedisTemplate.delete(keys);
+        }
+
+        // 返回刷新成功
+        return true;
+    }
+
+
 
 }
 
